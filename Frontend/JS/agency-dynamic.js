@@ -42,7 +42,10 @@ async function loadAgenciesSidebar(currentAgencyId) {
     }
 
     const list = document.getElementById('agenciesList');
-    if (!list) return;
+    if (!list) {
+      console.error('agenciesList element not found');
+      return;
+    }
 
     list.innerHTML = json.data.map(agency => {
       const iconHtml = agency.icon_url
@@ -69,6 +72,10 @@ async function loadAgenciesSidebar(currentAgencyId) {
   }
 }
 
+/**
+ * Load agency by ID and display details
+ * FIXED: Properly calculate and display stats
+ */
 async function loadAgencyById(id) {
   try {
     const res = await fetch(`${API_URL}/agencies/${encodeURIComponent(id)}`);
@@ -79,28 +86,86 @@ async function loadAgencyById(id) {
     }
 
     const agency = json.data;
-    document.getElementById('agencyTitle').textContent = agency.name || 'Agency';
-
+    
+    // Update agency header info
+    const titleEl = document.getElementById('agencyTitle');
     const iconEl = document.getElementById('agencyIcon');
-    if (agency.icon_url) {
-      iconEl.innerHTML = `<img src="${escapeHtml(agency.icon_url)}" alt="${escapeHtml(agency.name)}" style="width:48px;height:48px;object-fit:contain;border-radius:6px;">`;
-    } else if (agency.icon_emoji) {
-      iconEl.textContent = agency.icon_emoji;
-    } else {
-      iconEl.textContent = agency.name ? agency.name.charAt(0) : 'A';
+    const descEl = document.getElementById('agencyDescription');
+    const nameEl = document.getElementById('agencyName');
+    
+    if (titleEl) titleEl.textContent = agency.name || 'Agency';
+    if (descEl) descEl.textContent = agency.description || '';
+    if (nameEl) nameEl.textContent = agency.name || '';
+
+    if (iconEl) {
+      if (agency.icon_url) {
+        iconEl.innerHTML = `<img src="${escapeHtml(agency.icon_url)}" alt="${escapeHtml(agency.name)}" style="width:48px;height:48px;object-fit:contain;border-radius:6px;">`;
+      } else if (agency.icon_emoji) {
+        iconEl.textContent = agency.icon_emoji;
+      } else {
+        iconEl.textContent = agency.name ? agency.name.charAt(0) : 'A';
+      }
     }
 
-    document.getElementById('agencyName').textContent = agency.name || '';
-    document.getElementById('agencyDescription').textContent = agency.description || '';
-
-    document.getElementById('totalSystems').textContent = agency.systems_count || 0;
-    document.getElementById('systemsUp').textContent = agency.systems_up || 0;
-    document.getElementById('systemsDown').textContent = agency.systems_down || 0;
-
-    const tbody = document.getElementById('systemsBody');
-    if (!tbody) return;
-
+    // FIXED: Update stats with proper values
     const systems = Array.isArray(agency.systems) ? agency.systems : [];
+    const totalSystems = systems.length;
+    const systemsUp = systems.filter(s => s.status === 'Up').length;
+    const systemsDown = systems.filter(s => s.status === 'Down').length;
+    
+    // Calculate average uptime
+    const uptimes = systems
+      .map(s => parseFloat(s.uptime_percentage))
+      .filter(u => !isNaN(u) && u > 0);
+    
+    const avgUptime = uptimes.length > 0
+      ? (uptimes.reduce((a, b) => a + b, 0) / uptimes.length).toFixed(1)
+      : '0.0';
+    
+    console.log('Agency stats:', {
+      total: totalSystems,
+      up: systemsUp,
+      down: systemsDown,
+      avgUptime: avgUptime,
+      systems: systems
+    });
+    
+    const totalSystemsEl = document.getElementById('totalSystems');
+    const systemsUpEl = document.getElementById('systemsUp');
+    const systemsDownEl = document.getElementById('systemsDown');
+    const avgUptimeEl = document.getElementById('agency-avg-uptime');
+    
+    if (totalSystemsEl) {
+      totalSystemsEl.textContent = totalSystems;
+      console.log('✅ Set totalSystems to:', totalSystems);
+    }
+    if (systemsUpEl) {
+      systemsUpEl.textContent = systemsUp;
+      console.log('✅ Set systemsUp to:', systemsUp);
+    }
+    if (systemsDownEl) {
+      systemsDownEl.textContent = systemsDown;
+      console.log('✅ Set systemsDown to:', systemsDown);
+    }
+    if (avgUptimeEl) {
+      avgUptimeEl.textContent = avgUptime + '%';
+      console.log('✅ Set avgUptime to:', avgUptime + '%');
+    }
+
+    // Show stats section if there are systems
+    const statsSection = document.getElementById('agency-stats-section');
+    if (statsSection && totalSystems > 0) {
+      statsSection.style.display = 'grid';
+      console.log('✅ Showed stats section');
+    }
+
+    // Update systems table
+    const tbody = document.getElementById('systemsBody');
+    if (!tbody) {
+      console.error('systemsBody element not found');
+      return;
+    }
+
     if (systems.length === 0) {
       tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">No systems found for this agency</td></tr>`;
       return;
@@ -113,7 +178,7 @@ async function loadAgencyById(id) {
 
       return `
         <tr>
-          <td>${escapeHtml(s.name)}</td>
+          <td><strong>${escapeHtml(s.name)}</strong></td>
           <td>${escapeHtml(s.type || 'N/A')}</td>
           <td><span class="${statusClass}">${escapeHtml(s.status || 'N/A')}</span></td>
           <td>${escapeHtml(uptime)}</td>
@@ -130,16 +195,23 @@ async function loadAgencyById(id) {
 
 function showError(message) {
   const tbody = document.getElementById('systemsBody');
-  if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc3545; padding:20px;">⚠️ ${escapeHtml(message)}</td></tr>`;
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc3545; padding:20px;">⚠️ ${escapeHtml(message)}</td></tr>`;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔍 Agency page initialized');
+  
   setActiveNavLink();
   const agencyId = q('agency_id') || q('id');
+  
   if (!agencyId) {
     showError('No agency specified');
     return;
   }
+
+  console.log('📍 Loading agency:', agencyId);
 
   // Load sidebar agencies
   loadAgenciesSidebar(agencyId);

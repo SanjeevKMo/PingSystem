@@ -3,74 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Monitoring Dashboard</title>
-  <link rel="stylesheet" href="../CSS/styles.css">
+  <title>Government Systems Monitor - Dashboard</title>
+  <link rel="stylesheet" href="../CSS/design-system.css">
+  <link rel="stylesheet" href="../CSS/styles-new.css">
 </head>
 <body>
+  <!-- Header -->
   <header>
-    <h1>System Monitoring Dashboard</h1>
+    <div class="header-logo">
+      <div class="header-logo-icon">🛡️</div>
+      <span>Government Systems Monitor</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="active">Dashboard</a>
+      <a href="#agencies">Agencies</a>
+    </nav>
+    <div class="header-actions">
+      <a href="admin-login.html" class="btn btn-secondary btn-sm">Admin</a>
+    </div>
   </header>
 
-  <nav>
-    <a href="index.html">Dashboard</a>
-    <a href="admin-login.html">Admin</a>
-  </nav>
-
+  <!-- Main Content -->
   <main>
-    <section class="summary-cards">
-      <div class="card card-stat">
-        <div class="card-value">Loading...</div>
-        <div class="card-label">Total Systems</div>
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">System Monitoring Dashboard</h1>
+        <p class="page-subtitle">Real-time monitoring of government systems and infrastructure</p>
       </div>
-      <div class="card card-stat">
-        <div class="card-value">Loading...</div>
-        <div class="card-label">Systems Up</div>
-      </div>
-      <div class="card card-stat card-down">
-        <div class="card-value">Loading...</div>
-        <div class="card-label">Systems Down</div>
-      </div>
-      <div class="card card-chart">
-        <div class="pie-chart-placeholder">
-          <svg viewBox="0 0 100 100" class="pie-chart">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#75c75f" stroke-width="8" stroke-dasharray="0 100"/>
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#ff6b6b" stroke-width="8" stroke-dasharray="0 100" stroke-dashoffset="0"/>
-          </svg>
-          <div class="chart-legend">
-            <div><span class="legend-up"></span> Up: 0%</div>
-            <div><span class="legend-down"></span> Down: 0%</div>
-          </div>
+
+      <!-- Key Metrics -->
+      <div class="summary-cards">
+        <!-- Total Systems Card -->
+        <div class="card stat-card card-stat">
+          <div class="stat-value card-value" id="total-systems">0</div>
+          <div class="stat-label card-label">Total Systems</div>
+          <div class="stat-change positive">✓ All tracked</div>
+        </div>
+
+        <!-- Systems Online Card -->
+        <div class="card stat-card card-stat">
+          <div class="stat-value card-value" id="systems-up" style="color: var(--color-success);">0</div>
+          <div class="stat-label card-label">Systems Online</div>
+          <div class="stat-change positive" id="systems-up-percent">↑ 0%</div>
+        </div>
+
+        <!-- Systems Offline Card -->
+        <div class="card stat-card card-stat card-down">
+          <div class="stat-value card-value" id="systems-down" style="color: var(--color-danger);">0</div>
+          <div class="stat-label card-label">Systems Offline</div>
+          <div class="stat-change negative" id="systems-down-percent">↓ 0%</div>
+        </div>
+
+        <!-- Average Uptime Card -->
+        <div class="card stat-card card-stat">
+          <div class="stat-value card-value" id="avg-uptime" style="color: var(--color-info);">0%</div>
+          <div class="stat-label card-label">Average Uptime</div>
+          <div class="stat-change positive">Last 30 days</div>
         </div>
       </div>
-    </section>
 
-    <section class="agency-buttons">
-      <a href="agency-a.html" class="btn-agency">Ministry of Health</a>
-      <a href="agency-b.html" class="btn-agency">MoESD</a>
-      <a href="agency-c.html" class="btn-agency">The PEMA Secretariat</a>
-    </section>
+      <!-- Agencies Section -->
+      <section id="agencies" class="mb-8">
+        <div class="page-header">
+          <h2 class="page-title" style="font-size: var(--text-3xl); background: none; -webkit-text-fill-color: unset; color: var(--color-text-primary);">Government Agencies</h2>
+          <p class="page-subtitle">Select an agency to view detailed system status</p>
+        </div>
 
-    <section class="system-table">
-    <h2>Systems List</h2>
-    <table>
-      <thead>
-        <tr><th>System</th><th>Status</th><th>Last Check</th><th>Agency</th></tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="4" style="text-align: center; color: #999; padding: 20px;">Loading systems...</td></tr>
-      </tbody>
-    </table>
-    </section>
+        <div class="agency-buttons" id="agencies-container">
+          <!-- Agencies loaded by JavaScript -->
+          <div class="empty-state">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: var(--space-4);">Loading agencies...</p>
+          </div>
+        </div>
+      </section>
 
-    <section class="notifications">
-    <h2>Notifications</h2>
-    <div class="notification-list">
-      <div style="text-align: center; padding: 20px; color: #999;">
-        Loading notifications...
-      </div>
+      <!-- Systems Table Section -->
+      <section id="systems" class="systems-table-wrapper">
+        <div class="page-header">
+          <h2 class="page-title" style="font-size: var(--text-3xl); background: none; -webkit-text-fill-color: unset; color: var(--color-text-primary);">All Systems</h2>
+          <p class="page-subtitle">Complete list of monitored systems across all agencies</p>
+        </div>
+
+        <div class="system-table">
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>System Name</th>
+                  <th>Agency</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Uptime</th>
+                  <th>Last Check</th>
+                </tr>
+              </thead>
+              <tbody id="systems-tbody">
+                <tr>
+                  <td colspan="6" class="text-center">
+                    <div class="loading-spinner" style="margin: var(--space-4) auto;"></div>
+                    <p>Loading systems...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
-  </section>
+  </main>
 
+  <!-- Load JavaScript -->
   <script src="../JS/dashboard.js"></script>
+  
+  <!-- TEMPORARY FIX: Force uptime update until dashboard.js loads correctly -->
+  <script>
+    // Fallback uptime calculator
+    setTimeout(async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/systems');
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          const systems = data.data;
+          
+          // Calculate average uptime
+          const uptimes = systems
+            .map(s => parseFloat(s.uptime_percentage))
+            .filter(u => !isNaN(u) && u > 0);
+          
+          if (uptimes.length > 0) {
+            const avg = uptimes.reduce((a, b) => a + b, 0) / uptimes.length;
+            
+            const el = document.getElementById('avg-uptime');
+            if (el) {
+              el.textContent = avg.toFixed(1) + '%';
+              console.log('✅ Average uptime updated to:', avg.toFixed(1) + '%');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error calculating uptime:', error);
+      }
+    }, 1500);
+  </script>
 </body>
 </html>

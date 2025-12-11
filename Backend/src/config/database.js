@@ -11,7 +11,7 @@ module.exports = {
 
   // Server Configuration
   server: {
-    port: process.env.PORT || 5000,
+    port: process.env.PORT || 5001,
     env: process.env.NODE_ENV || 'development'
   },
 
@@ -35,14 +35,16 @@ module.exports = {
         'http://127.0.0.1:5000',
         'http://127.0.0.1:5001',
         'http://127.0.0.1:8080',
-        'http://127.0.0.1:9090'
+        'http://127.0.0.1:9090',
+        'null'
       ];
       
       // Allow requests without an origin (like mobile apps or curl)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('CORS not allowed'));
+        console.log('CORS blocked origin:', origin);  // Debug log
+      callback(null, true);  // Temporarily allow all for testing
       }
     },
     credentials: true

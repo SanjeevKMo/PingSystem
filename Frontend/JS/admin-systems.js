@@ -9,11 +9,18 @@ let allSystems = [];
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-  // Check authentication
-  const authToken = localStorage.getItem('authToken');
+  // Check authentication - FIXED: Use 'token' to match admin-login.html
+  const authToken = localStorage.getItem('token');
   if (!authToken) {
     window.location.href = 'admin-login.html';
     return;
+  }
+
+  // Display username
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userNameEl = document.getElementById('user-name');
+  if (userNameEl) {
+    userNameEl.textContent = user.username || 'Admin';
   }
 
   // Load systems and agencies
@@ -32,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeEditModal();
     }
   });
+  
   // Close agency modal on background click
   const editAgencyModal = document.getElementById('editAgencyModal');
   if (editAgencyModal) {
@@ -39,10 +47,26 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target.id === 'editAgencyModal') closeEditAgencyModal();
     });
   }
+  
   // Wire edit agency form
   const editAgencyForm = document.getElementById('editAgencyForm');
   if (editAgencyForm) editAgencyForm.addEventListener('submit', handleUpdateAgency);
 });
+
+/**
+ * Logout function
+ * FIXED: Use consistent token name
+ */
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    // Clear all auth data - FIXED: Use 'token' consistently
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Redirect immediately
+    window.location.replace('admin-login.html');
+  }
+}
 
 /**
  * Load agencies (admin view)
@@ -52,7 +76,7 @@ async function loadAgenciesAdmin() {
     const response = await fetch(`${API_URL}/agencies`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`  // FIXED: Use 'token'
       }
     });
 
@@ -74,11 +98,11 @@ function renderAgenciesTable(agencies) {
   if (!container) return;
 
   if (!agencies || agencies.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><p>No agencies yet. Create one using the form above.</p></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔭</div><p>No agencies yet. Create one using the form above.</p></div>`;
     return;
   }
 
-  let html = `<table><thead><tr><th>Name</th><th>Contact</th><th>Systems</th><th>Actions</th></tr></thead><tbody>`;
+  let html = `<div class="table-wrapper"><table class="table"><thead><tr><th>Name</th><th>Contact</th><th>Systems</th><th>Actions</th></tr></thead><tbody>`;
   agencies.forEach(a => {
     const contact = a.contact_email ? escapeHtml(a.contact_email) : (a.contact_phone ? escapeHtml(a.contact_phone) : 'N/A');
     html += `
@@ -87,15 +111,15 @@ function renderAgenciesTable(agencies) {
         <td style="font-size:12px">${contact}</td>
         <td>${a.systems_count || 0}</td>
         <td>
-          <div class="actions-cell">
-            <button class="btn btn-edit" onclick="openEditAgencyModal(${a.id})">Edit</button>
-            <button class="btn btn-delete" onclick="deleteAgency(${a.id})">Delete</button>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="openEditAgencyModal(${a.id})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAgency(${a.id})">Delete</button>
           </div>
         </td>
       </tr>
     `;
   });
-  html += `</tbody></table>`;
+  html += `</tbody></table></div>`;
   container.innerHTML = html;
 }
 
@@ -104,9 +128,9 @@ function renderAgenciesTable(agencies) {
  */
 async function openEditAgencyModal(id) {
   try {
-    const res = await fetch(`${API_URL}/agencies/${id}` ,{
+    const res = await fetch(`${API_URL}/agencies/${id}`, {
       method: 'GET',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }  // FIXED
     });
     if (!res.ok) throw new Error('Failed to load agency');
     const json = await res.json();
@@ -155,7 +179,7 @@ async function handleUpdateAgency(e) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`  // FIXED
       },
       body: JSON.stringify(payload)
     });
@@ -200,7 +224,7 @@ async function handleAddAgency(e) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`  // FIXED
       },
       body: JSON.stringify(payload)
     });
@@ -212,9 +236,7 @@ async function handleAddAgency(e) {
 
     showAlert('Agency created successfully', 'success');
     form.reset();
-    // Reload agencies and update selects
     await loadAgenciesAdmin();
-    // Also update system dropdowns with refreshed agency list
     const allAgencies = await fetch(`${API_URL}/agencies`).then(r => r.json()).then(d => d.data || []);
     updateAgencySelectOptions(allAgencies);
   } catch (err) {
@@ -230,7 +252,6 @@ function updateAgencySelectOptions(agencies) {
   const selects = [document.getElementById('systemAgency'), document.getElementById('editSystemAgency')];
   selects.forEach(sel => {
     if (!sel) return;
-    // preserve the 'Other' option if present; otherwise rebuild list
     sel.innerHTML = '<option value="">Select Agency</option>';
     agencies.forEach(a => {
       const opt = document.createElement('option');
@@ -238,7 +259,6 @@ function updateAgencySelectOptions(agencies) {
       opt.textContent = a.name;
       sel.appendChild(opt);
     });
-    // keep an 'Other' option
     const otherOpt = document.createElement('option');
     otherOpt.value = 'Other';
     otherOpt.textContent = 'Other';
@@ -254,7 +274,7 @@ async function deleteAgency(id) {
   try {
     const res = await fetch(`${API_URL}/agencies/${id}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }  // FIXED
     });
     const json = await res.json();
     if (!res.ok) throw new Error(json.message || 'Failed to delete agency');
@@ -277,13 +297,13 @@ async function loadSystems() {
     const response = await fetch(`${API_URL}/systems`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`  // FIXED
       }
     });
 
     if (!response.ok) {
       if (response.status === 401) {
-        localStorage.removeItem('authToken');
+        localStorage.removeItem('token');  // FIXED
         window.location.href = 'admin-login.html';
         return;
       }
@@ -310,7 +330,7 @@ function renderSystemsTable() {
   if (allSystems.length === 0) {
     tableContainer.innerHTML = `
       <div class="empty-state">
-        <div class="empty-state-icon">📭</div>
+        <div class="empty-state-icon">🔭</div>
         <p>No systems added yet. Create your first system using the form above.</p>
       </div>
     `;
@@ -318,40 +338,43 @@ function renderSystemsTable() {
   }
 
   let tableHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Agency</th>
-          <th>URL</th>
-          <th>Status</th>
-          <th>Last Check</th>
-          <th>Uptime</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Agency</th>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Last Check</th>
+            <th>Uptime</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
   `;
 
   allSystems.forEach(system => {
-    const statusClass = `status-${system.status.toLowerCase()}`;
+    const statusBadge = system.status === 'Up' 
+      ? '<span class="badge badge-success">✓ Online</span>'
+      : '<span class="badge badge-danger">✕ Offline</span>';
     const lastCheck = system.last_check ? new Date(system.last_check).toLocaleString() : 'N/A';
-    const url = system.url ? `<a href="${system.url}" target="_blank" rel="noopener noreferrer">${system.url}</a>` : 'N/A';
+    const url = system.url ? `<a href="${system.url}" target="_blank" rel="noopener noreferrer" style="font-size: 12px; word-break: break-all;">${system.url}</a>` : 'N/A';
 
     tableHTML += `
       <tr>
         <td><strong>${escapeHtml(system.name)}</strong></td>
         <td>${escapeHtml(system.type)}</td>
         <td>${escapeHtml(system.agency)}</td>
-        <td style="max-width: 200px; word-break: break-all; font-size: 12px;">${url}</td>
-        <td><span class="${statusClass}">${system.status}</span></td>
+        <td style="max-width: 200px;">${url}</td>
+        <td>${statusBadge}</td>
         <td>${lastCheck}</td>
         <td>${system.uptime_percentage}%</td>
         <td>
-          <div class="actions-cell">
-            <button class="btn btn-edit" onclick="openEditModal(${system.id})">Edit</button>
-            <button class="btn btn-delete" onclick="deleteSystem(${system.id})">Delete</button>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="openEditModal(${system.id})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteSystem(${system.id})">Delete</button>
           </div>
         </td>
       </tr>
@@ -359,8 +382,9 @@ function renderSystemsTable() {
   });
 
   tableHTML += `
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   `;
 
   tableContainer.innerHTML = tableHTML;
@@ -381,7 +405,6 @@ async function handleAddSystem(e) {
     status: formData.get('status')
   };
 
-  // Validate required fields
   if (!systemData.name || !systemData.type || !systemData.agency) {
     showAlert('Please fill in all required fields', 'error');
     return;
@@ -392,7 +415,7 @@ async function handleAddSystem(e) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`  // FIXED
       },
       body: JSON.stringify(systemData)
     });
@@ -420,7 +443,7 @@ async function openEditModal(systemId) {
     const response = await fetch(`${API_URL}/systems/${systemId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`  // FIXED
       }
     });
 
@@ -431,7 +454,6 @@ async function openEditModal(systemId) {
     const data = await response.json();
     const system = data.data;
 
-    // Populate form
     document.getElementById('editSystemId').value = system.id;
     document.getElementById('editSystemName').value = system.name;
     document.getElementById('editSystemType').value = system.type;
@@ -478,7 +500,7 @@ async function handleUpdateSystem(e) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`  // FIXED
       },
       body: JSON.stringify(systemData)
     });
@@ -510,7 +532,7 @@ async function deleteSystem(systemId) {
     const response = await fetch(`${API_URL}/systems/${systemId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`  // FIXED
       }
     });
 
@@ -533,13 +555,15 @@ async function deleteSystem(systemId) {
  */
 function showAlert(message, type) {
   const alertElement = document.getElementById('alert');
+  if (!alertElement) return;
+  
   alertElement.textContent = message;
   alertElement.className = `alert alert-${type}`;
+  alertElement.style.display = 'block';
 
-  // Auto-hide success alerts after 3 seconds
   if (type === 'success') {
     setTimeout(() => {
-      alertElement.className = 'alert';
+      alertElement.style.display = 'none';
     }, 3000);
   }
 }
@@ -551,9 +575,9 @@ function showLoading(isLoading) {
   const tableContainer = document.getElementById('systemsTable');
   if (isLoading) {
     tableContainer.innerHTML = `
-      <div class="loading">
-        <div class="spinner"></div>
-        Loading systems...
+      <div class="loading" style="text-align: center; padding: var(--space-8);">
+        <div class="loading-spinner" style="margin: 0 auto var(--space-4);"></div>
+        <p>Loading systems...</p>
       </div>
     `;
   }
@@ -572,14 +596,4 @@ function escapeHtml(text) {
     "'": '&#039;'
   };
   return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-/**
- * Logout function
- */
-function logout() {
-  if (confirm('Are you sure you want to logout?')) {
-    localStorage.removeItem('authToken');
-    window.location.href = 'admin-login.html';
-  }
 }

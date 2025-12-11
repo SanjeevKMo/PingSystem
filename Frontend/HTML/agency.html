@@ -3,72 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agency</title>
-  <link rel="stylesheet" href="../CSS/styles.css">
+  <title>Agency Detail - Government Systems Monitor</title>
+  <link rel="stylesheet" href="../CSS/design-system.css">
+  <link rel="stylesheet" href="../CSS/styles-new.css">
 </head>
 <body>
+  <!-- Header -->
   <header>
-    <h1 id="agencyTitle">Loading agency...</h1>
+    <div class="header-logo">
+      <div class="header-logo-icon">🛡️</div>
+      <span>Government Systems Monitor</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html">Dashboard</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-secondary btn-sm" id="sidebar-mobile-toggle" style="display: none;">☰ Menu</button>
+      <a href="admin-login.html" class="btn btn-secondary btn-sm">Admin</a>
+    </div>
   </header>
 
-  <nav>
-    <a href="index.html">Dashboard</a>
-    <a href="admin-login.html">Admin</a>
-  </nav>
-
-  <!-- Sidebar for quick agency navigation -->
-  <aside class="agency-sidebar">
-    <div class="sidebar-header">
-      <h3>Agencies</h3>
-      <button id="sidebarToggle" class="sidebar-toggle" style="display:none;">✕</button>
-    </div>
-    <ul id="agenciesList" class="agencies-list">
-      <li style="text-align:center; color:#999; padding:20px;">Loading agencies...</li>
+  <!-- Agency Sidebar Navigation -->
+  <aside class="agency-sidebar" id="agency-sidebar">
+    <div class="agency-sidebar-header">Agencies</div>
+    <!-- FIXED: Changed id to match JavaScript -->
+    <ul class="agencies-list" id="agenciesList">
+      <!-- Populated by JavaScript -->
     </ul>
   </aside>
 
+  <!-- Main Content -->
   <main>
-    <section class="agency-header" style="padding:16px; display:flex; align-items:center; gap:12px;">
-      <div id="agencyIcon" class="agency-icon" style="font-size:48px"></div>
-      <div>
-        <h2 id="agencyName">&nbsp;</h2>
-        <p id="agencyDescription" style="color:#666; margin:0"></p>
+    <div class="container">
+      <!-- Agency Hero Section -->
+      <div class="agency-hero" id="agency-hero">
+        <!-- FIXED: Changed to camelCase IDs to match JavaScript -->
+        <div class="agency-hero-icon" id="agencyIcon">🏢</div>
+        <div class="agency-hero-info">
+          <h1 id="agencyTitle">Loading...</h1>
+          <p id="agencyDescription">Loading agency details...</p>
+          <!-- ADDED: Hidden element needed by JavaScript -->
+          <div id="agencyName" style="display:none;"></div>
+        </div>
       </div>
-    </section>
 
-    <section class="agency-summary" style="margin-top:12px;">
-      <div class="card card-stat">
-        <div class="card-value" id="totalSystems">0</div>
-        <div class="card-label">Total Systems</div>
-      </div>
-      <div class="card card-stat">
-        <div class="card-value" id="systemsUp">0</div>
-        <div class="card-label">Systems Up</div>
-      </div>
-      <div class="card card-stat card-down">
-        <div class="card-value" id="systemsDown">0</div>
-        <div class="card-label">Systems Down</div>
-      </div>
-    </section>
+      
+      <!-- Agency Stats -->
+<div class="dashboard-stats" id="agency-stats-section" style="margin-bottom: var(--space-8);">
+  <div class="card stat-card">
+    <div class="stat-value" id="totalSystems">0</div>
+    <div class="stat-label">Total Systems</div>
+  </div>
 
-    <section class="system-table" style="margin-top:20px;">
-      <h2>Systems List</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>System Name</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Uptime</th>
-            <th>Last Check</th>
-          </tr>
-        </thead>
-        <tbody id="systemsBody">
-          <tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">Loading systems...</td></tr>
-        </tbody>
-      </table>
-    </section>
+  <div class="card stat-card">
+    <div class="stat-value" id="systemsUp" style="color: var(--color-success);">0</div>
+    <div class="stat-label">Systems Online</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-value" id="systemsDown" style="color: var(--color-danger);">0</div>
+    <div class="stat-label">Systems Offline</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-value" id="agency-avg-uptime">0%</div>
+    <div class="stat-label">Average Uptime</div>
+  </div>
+</div>
+
+      <!-- Systems Table -->
+      <section style="margin-top: var(--space-12); margin-bottom: var(--space-12);">
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>System Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Uptime</th>
+                <th>Last Check</th>
+              </tr>
+            </thead>
+            <!-- FIXED: Changed to match JavaScript -->
+            <tbody id="systemsBody">
+              <tr>
+                <td colspan="5" class="text-center">
+                  <div class="loading-spinner" style="margin: var(--space-4) auto;"></div>
+                  <p>Loading systems...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </main>
+
+  <!-- Mobile Sidebar Toggle Button -->
+  <button class="btn btn-icon btn-primary" id="sidebar-toggle-btn" style="display: none; position: fixed; bottom: var(--space-6); right: var(--space-6); z-index: 600;">
+    ☰
+  </button>
 
   <script src="../JS/agency-dynamic.js"></script>
 </body>

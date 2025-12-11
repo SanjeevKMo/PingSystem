@@ -36,34 +36,68 @@ async function loadSystemsData() {
     }
   } catch (error) {
     console.error('Error loading systems:', error);
-    // Fall back to static data if API fails
     console.log('Using fallback static data');
   }
 }
 
 /**
  * Update summary cards with real data
+ * FIXED: Handle uptime as string and convert to number
  */
 function updateSummaryCards(systems) {
   const totalSystems = systems.length;
   const systemsUp = systems.filter(s => s.status === 'Up').length;
   const systemsDown = systems.filter(s => s.status === 'Down').length;
-  const uptime = totalSystems > 0 ? Math.round((systemsUp / totalSystems) * 100) : 0;
+  
+  // FIXED: Convert uptime strings to numbers and calculate average
+  const systemsWithUptime = systems.filter(s => s.uptime_percentage && parseFloat(s.uptime_percentage) > 0);
+  const uptimeSum = systemsWithUptime.reduce((sum, s) => {
+    const uptime = parseFloat(s.uptime_percentage) || 0;
+    return sum + uptime;
+  }, 0);
+  
+  const avgUptime = systemsWithUptime.length > 0 
+    ? Math.round((uptimeSum / systemsWithUptime.length) * 10) / 10  // Round to 1 decimal
+    : 0;
+
+  console.log('Uptime calculation:', {
+    systemsWithUptime: systemsWithUptime.length,
+    uptimeSum,
+    avgUptime
+  });
 
   // Update total systems card
-  const totalCard = document.querySelector('.summary-cards .card-stat:nth-child(1) .card-value');
+  const totalCard = document.getElementById('total-systems');
   if (totalCard) totalCard.textContent = totalSystems;
 
   // Update systems up card
-  const upCard = document.querySelector('.summary-cards .card-stat:nth-child(2) .card-value');
+  const upCard = document.getElementById('systems-up');
   if (upCard) upCard.textContent = systemsUp;
+  
+  const upPercentEl = document.getElementById('systems-up-percent');
+  if (upPercentEl && totalSystems > 0) {
+    const upPercent = Math.round((systemsUp / totalSystems) * 100);
+    upPercentEl.textContent = `↑ ${upPercent}%`;
+  }
 
   // Update systems down card
-  const downCard = document.querySelector('.summary-cards .card-stat:nth-child(3) .card-value');
+  const downCard = document.getElementById('systems-down');
   if (downCard) downCard.textContent = systemsDown;
+  
+  const downPercentEl = document.getElementById('systems-down-percent');
+  if (downPercentEl && totalSystems > 0) {
+    const downPercent = Math.round((systemsDown / totalSystems) * 100);
+    downPercentEl.textContent = `↓ ${downPercent}%`;
+  }
+
+  // Update average uptime card - FIXED
+  const avgUptimeEl = document.getElementById('avg-uptime');
+  if (avgUptimeEl) {
+    avgUptimeEl.textContent = `${avgUptime}%`;
+  }
 
   // Update pie chart
-  updatePieChart(uptime, systemsUp, systemsDown);
+  updatePieChart(avgUptime, systemsUp, systemsDown);
 }
 
 /**
@@ -73,27 +107,28 @@ function updatePieChart(uptime, up, down) {
   const pieSvg = document.querySelector('.pie-chart');
   if (!pieSvg) return;
 
-  // Calculate the stroke dasharray for the pie chart
-  // Circle circumference is 2πr, we use r=40 so circumference ≈ 251.2
   const totalCircumference = 251.2;
-  const upPercentage = up / (up + down) || 0;
-  const downPercentage = down / (up + down) || 0;
+  const total = up + down;
+  
+  if (total === 0) return;
+  
+  const upPercentage = up / total;
+  const downPercentage = down / total;
 
   const circles = pieSvg.querySelectorAll('circle');
   if (circles.length >= 2) {
-    // Green circle for up
     circles[0].style.strokeDasharray = `${upPercentage * totalCircumference} ${totalCircumference}`;
-    // Red circle for down
     circles[1].style.strokeDashoffset = `-${upPercentage * totalCircumference}`;
     circles[1].style.strokeDasharray = `${downPercentage * totalCircumference} ${totalCircumference}`;
   }
 
-  // Update legend
   const legend = document.querySelector('.chart-legend');
   if (legend) {
+    const upPct = Math.round(upPercentage * 100);
+    const downPct = Math.round(downPercentage * 100);
     legend.innerHTML = `
-      <div><span class="legend-up"></span> Up: ${uptime}%</div>
-      <div><span class="legend-down"></span> Down: ${100 - uptime}%</div>
+      <div><span class="legend-up"></span> Up: ${upPct}%</div>
+      <div><span class="legend-down"></span> Down: ${downPct}%</div>
     `;
   }
 }
@@ -102,31 +137,38 @@ function updatePieChart(uptime, up, down) {
  * Update systems table with real data
  */
 function updateSystemsTable(systems) {
-  const tableBody = document.querySelector('.system-table tbody');
+  const tableBody = document.getElementById('systems-tbody');
   if (!tableBody) return;
 
-  // Filter to show only down systems (as per original requirement)
-  const downSystems = systems.filter(s => s.status === 'Down');
-
-  if (downSystems.length === 0) {
+  if (systems.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="4" style="text-align: center; color: #28a745; padding: 20px;">
-          ✓ All systems are operational
+        <td colspan="6" style="text-align: center; padding: 20px; color: var(--color-text-secondary);">
+          No systems found
         </td>
       </tr>
     `;
     return;
   }
 
-  tableBody.innerHTML = downSystems.map(system => `
-    <tr>
-      <td>${escapeHtml(system.name)}</td>
-      <td><span class="status-down">Down</span></td>
-      <td>${formatDateTime(system.last_check) || 'N/A'}</td>
-      <td>${escapeHtml(system.agency)}</td>
-    </tr>
-  `).join('');
+  tableBody.innerHTML = systems.map(system => {
+    const statusClass = system.status === 'Up' ? 'status-up' : 
+                       (system.status === 'Down' ? 'status-down' : 'status-maintenance');
+    const statusBadge = `<span class="${statusClass}">${escapeHtml(system.status)}</span>`;
+    const lastCheck = formatDateTime(system.last_check) || 'N/A';
+    const uptime = system.uptime_percentage ? `${system.uptime_percentage}%` : 'N/A';
+
+    return `
+      <tr>
+        <td><strong>${escapeHtml(system.name)}</strong></td>
+        <td>${escapeHtml(system.agency)}</td>
+        <td>${escapeHtml(system.type)}</td>
+        <td>${statusBadge}</td>
+        <td>${escapeHtml(uptime)}</td>
+        <td>${escapeHtml(lastCheck)}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 /**
@@ -142,12 +184,12 @@ async function loadAgencies() {
       return;
     }
 
-    const container = document.querySelector('.agency-buttons');
+    const container = document.getElementById('agencies-container');
     if (!container) return;
 
     container.innerHTML = json.data.map(a => {
       const iconHtml = a.icon_url ?
-        `<img src="${a.icon_url}" alt="${escapeHtml(a.name)}" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:8px;">` :
+        `<img src="${escapeHtml(a.icon_url)}" alt="${escapeHtml(a.name)}" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:8px;">` :
         (a.icon_emoji ? `<span style="font-size:20px;margin-right:8px;vertical-align:middle;">${escapeHtml(a.icon_emoji)}</span>` : '');
 
       const style = a.color_code ? `style="border-color:${escapeHtml(a.color_code)}; color:${escapeHtml(a.color_code)}"` : '';
@@ -168,7 +210,6 @@ function updateNotifications(systems) {
   const notificationList = document.querySelector('.notification-list');
   if (!notificationList) return;
 
-  // Get down systems for notifications
   const downSystems = systems.filter(s => s.status === 'Down');
 
   if (downSystems.length === 0) {
@@ -218,11 +259,9 @@ function setActiveNavLink() {
  * Setup event listeners for interactive elements
  */
 function setupEventListeners() {
-  // Click handler for Systems Down card
   const downCard = document.querySelector('.card.card-down');
   if (downCard) {
     downCard.addEventListener('click', function() {
-      // Scroll to the systems table to show down systems
       const systemTable = document.querySelector('.system-table');
       if (systemTable) {
         systemTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -235,9 +274,11 @@ function setupEventListeners() {
   
   tableRows.forEach(row => {
     row.addEventListener('click', function() {
-      const systemName = this.cells[0].textContent;
-      const status = this.cells[1].textContent;
-      console.log(`Clicked: ${systemName} - Status: ${status}`);
+      const systemName = this.cells[0]?.textContent;
+      const status = this.cells[1]?.textContent;
+      if (systemName && status) {
+        console.log(`Clicked: ${systemName} - Status: ${status}`);
+      }
     });
   });
 }
@@ -247,11 +288,18 @@ function setupEventListeners() {
  */
 function formatDateTime(dateString) {
   if (!dateString) return null;
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (e) {
+    return null;
+  }
 }
 
 /**
@@ -266,7 +314,7 @@ function escapeHtml(text) {
     '"': '&quot;',
     "'": '&#039;'
   };
-  return text.replace(/[&<>"']/g, m => map[m]);
+  return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 // Export functions for testing
