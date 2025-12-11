@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agency</title>
+  <link rel="stylesheet" href="../CSS/styles.css">
+</head>
+<body>
+  <header>
+    <h1 id="agencyTitle">Loading agency...</h1>
+  </header>
+
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="admin-login.html">Admin</a>
+  </nav>
+
+  <main>
+    <section class="agency-header" style="padding:16px; display:flex; align-items:center; gap:12px;">
+      <div id="agencyIcon" class="agency-icon" style="font-size:48px"></div>
+      <div>
+        <h2 id="agencyName">&nbsp;</h2>
+        <p id="agencyDescription" style="color:#666; margin:0"></p>
+      </div>
+    </section>
+
+    <section class="agency-summary" style="margin-top:12px;">
+      <div class="card card-stat">
+        <div class="card-value" id="totalSystems">0</div>
+        <div class="card-label">Total Systems</div>
+      </div>
+      <div class="card card-stat">
+        <div class="card-value" id="systemsUp">0</div>
+        <div class="card-label">Systems Up</div>
+      </div>
+      <div class="card card-stat card-down">
+        <div class="card-value" id="systemsDown">0</div>
+        <div class="card-label">Systems Down</div>
+      </div>
+    </section>
+
+    <section class="system-table" style="margin-top:20px;">
+      <h2>Systems List</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>System Name</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Uptime</th>
+            <th>Last Check</th>
+          </tr>
+        </thead>
+        <tbody id="systemsBody">
+          <tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">Loading systems...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="../JS/agency-dynamic.js"></script>
+</body>
+</html>

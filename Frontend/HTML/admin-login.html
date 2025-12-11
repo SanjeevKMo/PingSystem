@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="../CSS/styles.css">
+</head>
+<body class="login-body">
+  <header>
+    <h1>System Monitoring Dashboard</h1>
+  </header>
+
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="admin-login.html">Admin</a>
+  </nav>
+
+  <main class="login-container">
+    <section class="login-panel">
+      <h2>Admin Login</h2>
+      <form id="loginForm" class="login-form">
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <div class="form-group checkbox">
+          <input type="checkbox" id="remember" name="remember">
+          <label for="remember">Remember me</label>
+        </div>
+
+        <button type="submit" class="btn-submit">Login</button>
+      </form>
+
+      <div class="login-footer">
+        <a href="#">Forgot password?</a>
+        <span class="separator">•</span>
+        <a href="#">Contact Support</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Point frontend to backend API port. Backend is running on PORT from Backend/.env (5001).
+    const API_URL = 'http://localhost:5001/api';
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('errorMessage');
+      const submitButton = document.querySelector('.btn-submit');
+
+      // Clear previous error
+      errorMessage.style.display = 'none';
+      errorMessage.textContent = '';
+
+      // Disable button during request
+      submitButton.disabled = true;
+      submitButton.textContent = 'Logging in...';
+
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Store token in localStorage
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          // Redirect to Manage Systems page (admin panel was removed)
+          window.location.href = 'admin-systems.html';
+        } else {
+          // Show error message
+          errorMessage.textContent = data.message || 'Login failed. Please try again.';
+          errorMessage.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Login Error:', error);
+        errorMessage.textContent = 'Connection error. Please check if the backend is running.';
+        errorMessage.style.display = 'block';
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Login';
+      }
+    });
+  </script>
+  <script src="../JS/dashboard.js"></script>
+</body>
+</html>

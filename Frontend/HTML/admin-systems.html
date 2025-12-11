@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Management - Admin Dashboard</title>
+  <link rel="stylesheet" href="../CSS/styles.css">
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .admin-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .form-section {
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-section h2 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .form-grid.full {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #545b62;
+    }
+
+    .btn-edit {
+      background-color: #28a745;
+      color: white;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .btn-edit:hover {
+      background-color: #218838;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
+    .table-section {
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+
+    .table-section h2 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    thead {
+      background-color: #f8f9fa;
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .status-up {
+      color: #28a745;
+      font-weight: 600;
+    }
+
+    .status-down {
+      color: #dc3545;
+      font-weight: 600;
+    }
+
+    .status-maintenance {
+      color: #ffc107;
+      font-weight: 600;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 5px;
+    }
+
+    .alert {
+      padding: 12px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .alert-info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .modal-close {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      color: #aaa;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: #000;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007bff;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>System Monitoring Dashboard - Admin</h1>
+  </header>
+
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="admin-systems.html" class="active">Manage Systems</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+
+  <main class="container">
+    <div id="alert" class="alert"></div>
+
+    <div class="admin-content">
+      <!-- System Form -->
+      <div class="form-section">
+        <h2>Add New System</h2>
+        <form id="systemForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="systemName">System Name *</label>
+              <input type="text" id="systemName" name="name" required placeholder="e.g., Email Service">
+            </div>
+            <div class="form-group">
+              <label for="systemType">System Type *</label>
+              <input type="text" id="systemType" name="type" required placeholder="e.g., Email, Database, API">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="systemAgency">Agency *</label>
+              <select id="systemAgency" name="agency" required>
+                <option value="">Select Agency</option>
+                <option value="Ministry of Health">Ministry of Health</option>
+                <option value="MoESD">MoESD</option>
+                <option value="The PEMA Secretariat">The PEMA Secretariat</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="systemStatus">Status</label>
+              <select id="systemStatus" name="status">
+                <option value="Up">Up</option>
+                <option value="Down">Down</option>
+                <option value="Maintenance">Maintenance</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid full">
+            <div class="form-group">
+              <label for="systemUrl">System URL (for health checks)</label>
+              <input type="url" id="systemUrl" name="url" placeholder="https://example.com/health">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add System</button>
+            <button type="reset" class="btn btn-secondary">Clear Form</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Systems Table -->
+      <div class="form-section" id="agencyFormSection">
+        <h2>Add New Agency</h2>
+        <form id="agencyForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="agencyName">Agency Name *</label>
+              <input type="text" id="agencyName" name="name" required placeholder="e.g., Ministry of Health">
+            </div>
+            <div class="form-group">
+              <label for="agencyEmoji">Icon Emoji</label>
+              <input type="text" id="agencyEmoji" name="icon_emoji" placeholder="e.g., 🏥">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="agencyIconUrl">Icon URL</label>
+              <input type="url" id="agencyIconUrl" name="icon_url" placeholder="https://example.com/icon.png">
+            </div>
+            <div class="form-group">
+              <label for="agencyColor">Color Code</label>
+              <input type="color" id="agencyColor" name="color_code" value="#667eea">
+            </div>
+          </div>
+
+          <div class="form-grid full">
+            <div class="form-group">
+              <label for="agencyDescription">Description</label>
+              <textarea id="agencyDescription" name="description" placeholder="Short description"></textarea>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="agencyEmail">Contact Email</label>
+              <input type="email" id="agencyEmail" name="contact_email" placeholder="admin@example.gov">
+            </div>
+            <div class="form-group">
+              <label for="agencyPhone">Contact Phone</label>
+              <input type="text" id="agencyPhone" name="contact_phone" placeholder="+1234567890">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Agency</button>
+            <button type="reset" class="btn btn-secondary">Clear</button>
+          </div>
+        </form>
+
+        <div class="table-section" style="margin-top:18px;" id="agenciesTableSection">
+          <h2>Agencies</h2>
+          <div id="agenciesTable"></div>
+        </div>
+      </div>
+
+      <!-- Systems Table -->
+      <div class="table-section">
+        <h2>Managed Systems</h2>
+        <div id="systemsTable"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeEditModal()">&times;</span>
+      <h2>Edit System</h2>
+      <form id="editForm">
+        <input type="hidden" id="editSystemId" name="id">
+        <div class="form-group">
+          <label for="editSystemName">System Name *</label>
+          <input type="text" id="editSystemName" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="editSystemType">System Type *</label>
+          <input type="text" id="editSystemType" name="type" required>
+        </div>
+        <div class="form-group">
+          <label for="editSystemAgency">Agency *</label>
+          <select id="editSystemAgency" name="agency" required>
+            <option value="Ministry of Health">Ministry of Health</option>
+            <option value="MoESD">MoESD</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editSystemStatus">Status</label>
+          <select id="editSystemStatus" name="status">
+            <option value="Up">Up</option>
+            <option value="Down">Down</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editSystemUrl">System URL</label>
+          <input type="url" id="editSystemUrl" name="url" placeholder="https://example.com/health">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Update System</button>
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Agency Modal -->
+  <div id="editAgencyModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeEditAgencyModal()">&times;</span>
+      <h2>Edit Agency</h2>
+      <form id="editAgencyForm">
+        <input type="hidden" id="editAgencyId" name="id">
+        <div class="form-group">
+          <label for="editAgencyName">Agency Name *</label>
+          <input type="text" id="editAgencyName" name="name" required>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="editAgencyEmoji">Icon Emoji</label>
+            <input type="text" id="editAgencyEmoji" name="icon_emoji" placeholder="e.g., 🏥">
+          </div>
+          <div class="form-group">
+            <label for="editAgencyIconUrl">Icon URL</label>
+            <input type="url" id="editAgencyIconUrl" name="icon_url" placeholder="https://example.com/icon.png">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="editAgencyColor">Color Code</label>
+            <input type="color" id="editAgencyColor" name="color_code" value="#667eea">
+          </div>
+          <div class="form-group">
+            <label for="editAgencyPhone">Contact Phone</label>
+            <input type="text" id="editAgencyPhone" name="contact_phone" placeholder="+1234567890">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editAgencyEmail">Contact Email</label>
+          <input type="email" id="editAgencyEmail" name="contact_email" placeholder="admin@example.gov">
+        </div>
+
+        <div class="form-group">
+          <label for="editAgencyDescription">Description</label>
+          <textarea id="editAgencyDescription" name="description"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Update Agency</button>
+          <button type="button" class="btn btn-secondary" onclick="closeEditAgencyModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../JS/admin-systems.js"></script>
+</body>
+</html>

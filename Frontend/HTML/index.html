@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Monitoring Dashboard</title>
+  <link rel="stylesheet" href="../CSS/styles.css">
+</head>
+<body>
+  <header>
+    <h1>System Monitoring Dashboard</h1>
+  </header>
+
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="admin-login.html">Admin</a>
+  </nav>
+
+  <main>
+    <section class="summary-cards">
+      <div class="card card-stat">
+        <div class="card-value">Loading...</div>
+        <div class="card-label">Total Systems</div>
+      </div>
+      <div class="card card-stat">
+        <div class="card-value">Loading...</div>
+        <div class="card-label">Systems Up</div>
+      </div>
+      <div class="card card-stat card-down">
+        <div class="card-value">Loading...</div>
+        <div class="card-label">Systems Down</div>
+      </div>
+      <div class="card card-chart">
+        <div class="pie-chart-placeholder">
+          <svg viewBox="0 0 100 100" class="pie-chart">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#75c75f" stroke-width="8" stroke-dasharray="0 100"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#ff6b6b" stroke-width="8" stroke-dasharray="0 100" stroke-dashoffset="0"/>
+          </svg>
+          <div class="chart-legend">
+            <div><span class="legend-up"></span> Up: 0%</div>
+            <div><span class="legend-down"></span> Down: 0%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="agency-buttons">
+      <a href="agency-a.html" class="btn-agency">Ministry of Health</a>
+      <a href="agency-b.html" class="btn-agency">MoESD</a>
+      <a href="agency-c.html" class="btn-agency">The PEMA Secretariat</a>
+    </section>
+
+    <section class="system-table">
+    <h2>Systems List</h2>
+    <table>
+      <thead>
+        <tr><th>System</th><th>Status</th><th>Last Check</th><th>Agency</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" style="text-align: center; color: #999; padding: 20px;">Loading systems...</td></tr>
+      </tbody>
+    </table>
+    </section>
+
+    <section class="notifications">
+    <h2>Notifications</h2>
+    <div class="notification-list">
+      <div style="text-align: center; padding: 20px; color: #999;">
+        Loading notifications...
+      </div>
+    </div>
+  </section>
+
+  <script src="../JS/dashboard.js"></script>
+</body>
+</html>
