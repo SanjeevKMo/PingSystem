@@ -684,3 +684,155 @@ textarea {
     margin-bottom: 0.5rem;
   }
 }
+
+/* Sidebar Styles - Agency Navigation */
+.agency-sidebar {
+  position: fixed;
+  left: 0;
+ 
+  width: 280px;
+  height: 100vh;
+  background-color: #f9f9f9;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  padding-top: 80px;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 2px solid #667eea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 101;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.sidebar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #667eea;
+  padding: 0;
+}
+
+.agencies-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.agencies-list li {
+  padding: 0;
+}
+
+.agencies-list a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 1rem;
+  color: #333;
+  text-decoration: none;
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #eee;
+}
+
+.agencies-list a:hover {
+  background-color: #f0f0f0;
+  border-left-color: #667eea;
+  color: #555;
+}
+
+.agencies-list a.active {
+  background-color: #e8eaf6;
+  border-left-color: #667eea;
+  color: #333;
+  font-weight: 600;
+}
+
+.agencies-list .agency-icon {
+  font-size: 1.2rem;
+  min-width: 24px;
+  text-align: center;
+}
+
+.agencies-list .agency-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agencies-list .agency-count {
+  font-size: 0.75rem;
+  color: #999;
+  background-color: #e8e8e8;
+  padding: 2px 6px;
+  border-radius: 3px;
+  min-width: fit-content;
+}
+
+/* Adjust main layout to account for sidebar */
+main {
+  margin-left: 280px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .agency-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: auto;
+    left: auto;
+    border-right: none;
+    border-bottom: 2px solid #667eea;
+    padding-top: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .sidebar-header {
+    position: relative;
+    top: auto;
+  }
+
+  .agencies-list {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .agencies-list a {
+    border-left: none;
+    border-bottom: 4px solid transparent;
+    padding: 12px 1rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .agencies-list a:hover,
+  .agencies-list a.active {
+    border-left: none;
+    border-bottom-color: #667eea;
+  }
+
+  main {
+    margin-left: 0;
+  }
+}

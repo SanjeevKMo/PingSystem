@@ -28,6 +28,47 @@ function setActiveNavLink() {
   });
 }
 
+/**
+ * Load all agencies and populate sidebar
+ */
+async function loadAgenciesSidebar(currentAgencyId) {
+  try {
+    const res = await fetch(`${API_URL}/agencies`);
+    const json = await res.json();
+    
+    if (!json.success || !Array.isArray(json.data)) {
+      console.error('Failed to load agencies for sidebar');
+      return;
+    }
+
+    const list = document.getElementById('agenciesList');
+    if (!list) return;
+
+    list.innerHTML = json.data.map(agency => {
+      const iconHtml = agency.icon_url
+        ? `<img src="${escapeHtml(agency.icon_url)}" alt="${escapeHtml(agency.name)}" style="width:20px;height:20px;object-fit:contain;">`
+        : (agency.icon_emoji ? `<span class="agency-icon">${escapeHtml(agency.icon_emoji)}</span>` : `<span class="agency-icon">${escapeHtml(agency.name.charAt(0).toUpperCase())}</span>`);
+
+      const isActive = parseInt(currentAgencyId) === parseInt(agency.id);
+      const activeClass = isActive ? 'active' : '';
+      const systemCount = agency.systems_count || 0;
+
+      return `
+        <li>
+          <a href="agency.html?agency_id=${agency.id}" class="${activeClass}" title="${escapeHtml(agency.name)}">
+            ${iconHtml}
+            <span class="agency-name">${escapeHtml(agency.name)}</span>
+            <span class="agency-count">${systemCount}</span>
+          </a>
+        </li>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error('Error loading agencies sidebar:', err);
+  }
+}
+
 async function loadAgencyById(id) {
   try {
     const res = await fetch(`${API_URL}/agencies/${encodeURIComponent(id)}`);
@@ -100,5 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  // Load sidebar agencies
+  loadAgenciesSidebar(agencyId);
+  
+  // Load current agency data
   loadAgencyById(agencyId);
 });
