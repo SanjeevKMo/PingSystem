@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check authentication - FIXED: Use 'token' to match admin-login.html
   const authToken = localStorage.getItem('token');
   if (!authToken) {
-    window.location.href = 'admin-login.html';
+    globalThis.location.href = 'admin-login.html';
     return;
   }
 
@@ -64,7 +64,7 @@ function logout() {
     localStorage.removeItem('user');
     
     // Redirect immediately
-    window.location.replace('admin-login.html');
+    globalThis.location.replace('admin-login.html');
   }
 }
 
@@ -104,7 +104,12 @@ function renderAgenciesTable(agencies) {
 
   let html = `<div class="table-wrapper"><table class="table"><thead><tr><th>Name</th><th>Contact</th><th>Systems</th><th>Actions</th></tr></thead><tbody>`;
   agencies.forEach(a => {
-    const contact = a.contact_email ? escapeHtml(a.contact_email) : (a.contact_phone ? escapeHtml(a.contact_phone) : 'N/A');
+    let contact = 'N/A';
+    if (a.contact_email) {
+      contact = escapeHtml(a.contact_email);
+    } else if (a.contact_phone) {
+      contact = escapeHtml(a.contact_phone);
+    }
     html += `
       <tr>
         <td><strong>${escapeHtml(a.name)}</strong></td>
@@ -304,7 +309,7 @@ async function loadSystems() {
     if (!response.ok) {
       if (response.status === 401) {
         localStorage.removeItem('token');  // FIXED
-        window.location.href = 'admin-login.html';
+        globalThis.location.href = 'admin-login.html';
         return;
       }
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -326,6 +331,12 @@ async function loadSystems() {
  */
 function renderSystemsTable() {
   const tableContainer = document.getElementById('systemsTable');
+
+  // Ensure the tableContainer exists before rendering the systems table
+  if (!tableContainer) {
+    console.error('❌ Element "tableContainer" not found! Cannot render systems table.');
+    return;
+  }
 
   if (allSystems.length === 0) {
     tableContainer.innerHTML = `
@@ -386,6 +397,15 @@ function renderSystemsTable() {
       </table>
     </div>
   `;
+
+  // Debugging: Log the systems data loaded from the API
+  console.log('🔄 Systems data loaded:', allSystems);
+
+  // Debugging: Log the table container before rendering
+  console.log('🔄 Rendering systems table. Table container:', tableContainer);
+
+  // Debugging: Log the constructed table HTML
+  console.log('🔄 Constructed table HTML:', tableHTML);
 
   tableContainer.innerHTML = tableHTML;
 }
@@ -595,5 +615,5 @@ function escapeHtml(text) {
     '"': '&quot;',
     "'": '&#039;'
   };
-  return text.replace(/[&<>"']/g, m => map[m]);
+  return text.replaceAll(/[&<>"']/g, m => map[m]);
 }
