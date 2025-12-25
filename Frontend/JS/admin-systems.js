@@ -98,25 +98,41 @@ function renderAgenciesTable(agencies) {
   if (!container) return;
 
   if (!agencies || agencies.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔭</div><p>No agencies yet. Create one using the form above.</p></div>`;
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🔭</div>
+        <p>No agencies yet. Create one using the form above.</p>
+      </div>
+    `;
     return;
   }
 
-  let html = `<div class="table-wrapper"><table class="table"><thead><tr><th>Name</th><th>Contact</th><th>Systems</th><th>Actions</th></tr></thead><tbody>`;
+  let html = `
+    <div class="table-wrapper">
+      <table class="table responsive-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Systems</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
   agencies.forEach(a => {
     let contact = 'N/A';
-    if (a.contact_email) {
-      contact = escapeHtml(a.contact_email);
-    } else if (a.contact_phone) {
-      contact = escapeHtml(a.contact_phone);
-    }
+    if (a.contact_email) contact = escapeHtml(a.contact_email);
+    else if (a.contact_phone) contact = escapeHtml(a.contact_phone);
+
     html += `
       <tr>
-        <td><strong>${escapeHtml(a.name)}</strong></td>
-        <td style="font-size:12px">${contact}</td>
-        <td>${a.systems_count || 0}</td>
-        <td>
-          <div style="display: flex; gap: 0.5rem;">
+        <td data-label="Name"><strong>${escapeHtml(a.name)}</strong></td>
+        <td data-label="Contact">${contact}</td>
+        <td data-label="Systems">${a.systems_count || 0}</td>
+        <td data-label="Actions">
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
             <button class="btn btn-secondary btn-sm" onclick="openEditAgencyModal(${a.id})">Edit</button>
             <button class="btn btn-danger btn-sm" onclick="deleteAgency(${a.id})">Delete</button>
           </div>
@@ -124,7 +140,13 @@ function renderAgenciesTable(agencies) {
       </tr>
     `;
   });
-  html += `</tbody></table></div>`;
+
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+
   container.innerHTML = html;
 }
 
@@ -331,12 +353,7 @@ async function loadSystems() {
  */
 function renderSystemsTable() {
   const tableContainer = document.getElementById('systemsTable');
-
-  // Ensure the tableContainer exists before rendering the systems table
-  if (!tableContainer) {
-    console.error('❌ Element "tableContainer" not found! Cannot render systems table.');
-    return;
-  }
+  if (!tableContainer) return;
 
   if (allSystems.length === 0) {
     tableContainer.innerHTML = `
@@ -350,7 +367,17 @@ function renderSystemsTable() {
 
   let tableHTML = `
     <div class="table-wrapper">
-      <table class="table">
+      <table class="table responsive-table" style="table-layout: fixed; width: 100%;">
+        <colgroup>
+          <col style="width: 14%">
+          <col style="width: 10%">
+          <col style="width: 12%">
+          <col style="width: 26%"> <!-- URL gets more space -->
+          <col style="width: 10%">
+          <col style="width: 14%">
+          <col style="width: 6%">
+          <col style="width: 8%">
+        </colgroup>
         <thead>
           <tr>
             <th>Name</th>
@@ -367,23 +394,33 @@ function renderSystemsTable() {
   `;
 
   allSystems.forEach(system => {
-    const statusBadge = system.status === 'Up' 
-      ? '<span class="badge badge-success">✓ Online</span>'
-      : '<span class="badge badge-danger">✕ Offline</span>';
-    const lastCheck = system.last_check ? new Date(system.last_check).toLocaleString() : 'N/A';
-    const url = system.url ? `<a href="${system.url}" target="_blank" rel="noopener noreferrer" style="font-size: 12px; word-break: break-all;">${system.url}</a>` : 'N/A';
+    const statusBadge =
+      system.status === 'Up'
+        ? '<span class="badge badge-success">✓ Online</span>'
+        : '<span class="badge badge-danger">✕ Offline</span>';
+
+    const lastCheck = system.last_check
+      ? new Date(system.last_check).toLocaleString()
+      : 'N/A';
+
+    const url = system.url
+      ? `<a href="${system.url}" target="_blank" rel="noopener noreferrer"
+          style="word-break: break-all; font-size: 12px;">
+          ${system.url}
+        </a>`
+      : 'N/A';
 
     tableHTML += `
       <tr>
-        <td><strong>${escapeHtml(system.name)}</strong></td>
-        <td>${escapeHtml(system.type)}</td>
-        <td>${escapeHtml(system.agency)}</td>
-        <td style="max-width: 200px;">${url}</td>
-        <td>${statusBadge}</td>
-        <td>${lastCheck}</td>
-        <td>${system.uptime_percentage}%</td>
-        <td>
-          <div style="display: flex; gap: 0.5rem;">
+        <td data-label="Name"><strong>${escapeHtml(system.name)}</strong></td>
+        <td data-label="Type">${escapeHtml(system.type)}</td>
+        <td data-label="Agency">${escapeHtml(system.agency)}</td>
+        <td data-label="URL">${url}</td>
+        <td data-label="Status">${statusBadge}</td>
+        <td data-label="Last Check">${lastCheck}</td>
+        <td data-label="Uptime">${system.uptime_percentage}%</td>
+        <td data-label="Actions">
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
             <button class="btn btn-secondary btn-sm" onclick="openEditModal(${system.id})">Edit</button>
             <button class="btn btn-danger btn-sm" onclick="deleteSystem(${system.id})">Delete</button>
           </div>
@@ -397,15 +434,6 @@ function renderSystemsTable() {
       </table>
     </div>
   `;
-
-  // Debugging: Log the systems data loaded from the API
-  console.log('🔄 Systems data loaded:', allSystems);
-
-  // Debugging: Log the table container before rendering
-  console.log('🔄 Rendering systems table. Table container:', tableContainer);
-
-  // Debugging: Log the constructed table HTML
-  console.log('🔄 Constructed table HTML:', tableHTML);
 
   tableContainer.innerHTML = tableHTML;
 }

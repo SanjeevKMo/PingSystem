@@ -16,7 +16,7 @@
     </div>
     <nav class="header-nav">
       <a href="index.html" class="active">Dashboard</a>
-      <a href="#agencies">Agencies</a>
+     
     </nav>
     <div class="header-actions">
       <a href="admin-login.html" class="btn btn-secondary btn-sm">Admin</a>
@@ -82,8 +82,8 @@
       <!-- Systems Table Section -->
       <section id="systems" class="systems-table-wrapper">
         <div class="page-header">
-          <h2 class="page-title" style="font-size: var(--text-3xl); background: none; -webkit-text-fill-color: unset; color: var(--color-text-primary);">All Systems</h2>
-          <p class="page-subtitle">Complete list of monitored systems across all agencies</p>
+          <h2 class="page-title" style="font-size: var(--text-3xl); background: none; -webkit-text-fill-color: unset; color: var(--color-text-primary);">Systems Currently Unavailable</h2>
+          <p class="page-subtitle">All systems experiencing downtime</p>
         </div>
 
         <div class="system-table">
@@ -130,8 +130,8 @@
           
           // Calculate average uptime
           const uptimes = systems
-            .map(s => parseFloat(s.uptime_percentage))
-            .filter(u => !isNaN(u) && u > 0);
+            .map(s => Number.parseFloat(s.uptime_percentage))
+            .filter(u => !Number.isNaN(u) && u > 0);
           
           if (uptimes.length > 0) {
             const avg = uptimes.reduce((a, b) => a + b, 0) / uptimes.length;

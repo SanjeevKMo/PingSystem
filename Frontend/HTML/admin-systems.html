@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Systems - Government Systems Monitor</title>
+  <title>Admin Page - Government Systems Monitor</title>
   <link rel="stylesheet" href="../CSS/design-system.css">
   <link rel="stylesheet" href="../CSS/styles-new.css">
 </head>
@@ -49,12 +49,12 @@
           <form id="systemForm">
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">System Name *</label>
-                <input type="text" class="form-input" name="name" required placeholder="e.g., National ID Portal">
+                <label class="form-label" for="system-name">System Name *</label>
+                <input id="system-name" type="text" class="form-input" name="name" required placeholder="e.g., National ID Portal">
               </div>
 
               <div class="form-group">
-                <label class="form-label">System Type *</label>
+                <label class="form-label" for="system-type">System Type *</label>
                 <select class="form-select" name="type" id="systemType" required>
                   <option value="">Select type...</option>
                   <option value="Web Application">Web Application</option>
@@ -69,7 +69,7 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Agency *</label>
+                <label class="form-label" for="agency">Agency *</label>
                 <select class="form-select" name="agency" id="systemAgency" required>
                   <option value="">Select agency...</option>
                   <!-- Populated by JavaScript -->
@@ -77,7 +77,7 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Status *</label>
+                <label class="form-label" for="status">Status *</label>
                 <select class="form-select" name="status" id="systemStatus" required>
                   <option value="Up">Up</option>
                   <option value="Down">Down</option>
@@ -87,9 +87,8 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">URL or Endpoint</label>
-              <input type="text" class="form-input" name="url" placeholder="https://example.gov.bt">
-              <p class="form-helper">Optional: URL for automated health checks</p>
+              <label class="form-label" for="url">URL or Endpoint</label>
+              <input id="url" class="form-control" type="text" required>
             </div>
 
             <div style="display: flex; gap: var(--space-4); justify-content: flex-end;">
@@ -100,7 +99,83 @@
         </div>
       </div>
 
-      <!-- Systems Table -->
+      
+      <!-- Agencies Section -->
+      <div style="margin-top: var(--space-12);">
+        <div class="page-header">
+          <h2 class="page-title" style="font-size: var(--text-3xl); background: none; -webkit-text-fill-color: unset; color: var(--color-text-primary);">Agencies Management</h2>
+          <p class="page-subtitle">Create and manage government agencies</p>
+        </div>
+
+        <!-- Agency Form Card -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Add New Agency</h3>
+              <p class="card-subtitle">Create a new government agency</p>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <form id="agencyForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="agency-name">Agency Name *</label>
+                  <input type="text" class="form-input" name="name" required placeholder="e.g., Ministry of Health">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="icon-emoji">Icon Emoji</label>
+                  <input type="text" class="form-input" name="icon_emoji" placeholder="🏢" maxlength="2">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="icon-url">Icon URL (Optional)</label>
+                  <input type="text" class="form-input" name="icon_url" placeholder="https://example.com/icon.png">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="color-code">Color Code</label>
+                  <input type="color" class="form-input" name="color_code" value="#667eea">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="contact-email">Contact Email</label>
+                  <input type="email" class="form-input" name="contact_email" placeholder="contact@agency.gov.bt">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="contact-phone">Contact Phone</label>
+                  <input type="text" class="form-input" name="contact_phone" placeholder="+975-XXXX-XXXX">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="description">Description</label>
+                <textarea id="description" class="form-control"></textarea>
+              </div>
+
+              <div style="display: flex; gap: var(--space-4); justify-content: flex-end;">
+                <button type="reset" class="btn btn-secondary">Clear Form</button>
+                <button type="submit" class="btn btn-primary">Create Agency</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Agencies Table -->
+        <div id="agenciesTable">
+          <div class="empty-state">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: var(--space-4);">Loading agencies...</p>
+          </div>
+        </div>
+
+        <!-- Systems Table -->
       <div class="card" style="margin-bottom: var(--space-12);">
         <div class="card-header">
           <div>
@@ -126,80 +201,8 @@
         </div>
       </div>
 
-      <!-- Agencies Section -->
-      <div style="margin-top: var(--space-12);">
-        <div class="page-header">
-          <h2 class="page-title" style="font-size: var(--text-3xl); background: none; -webkit-text-fill-color: unset; color: var(--color-text-primary);">Agencies Management</h2>
-          <p class="page-subtitle">Create and manage government agencies</p>
-        </div>
 
-        <!-- Agency Form Card -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <div class="card-header">
-            <div>
-              <h3 class="card-title">Add New Agency</h3>
-              <p class="card-subtitle">Create a new government agency</p>
-            </div>
-          </div>
 
-          <div class="card-body">
-            <form id="agencyForm">
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Agency Name *</label>
-                  <input type="text" class="form-input" name="name" required placeholder="e.g., Ministry of Health">
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Icon Emoji</label>
-                  <input type="text" class="form-input" name="icon_emoji" placeholder="🏢" maxlength="2">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Icon URL (Optional)</label>
-                  <input type="text" class="form-input" name="icon_url" placeholder="https://example.com/icon.png">
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Color Code</label>
-                  <input type="color" class="form-input" name="color_code" value="#667eea">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Contact Email</label>
-                  <input type="email" class="form-input" name="contact_email" placeholder="contact@agency.gov.bt">
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Contact Phone</label>
-                  <input type="text" class="form-input" name="contact_phone" placeholder="+975-XXXX-XXXX">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea class="form-textarea" name="description" rows="3" placeholder="Brief description of the agency"></textarea>
-              </div>
-
-              <div style="display: flex; gap: var(--space-4); justify-content: flex-end;">
-                <button type="reset" class="btn btn-secondary">Clear Form</button>
-                <button type="submit" class="btn btn-primary">Create Agency</button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <!-- Agencies Table -->
-        <div id="agenciesTable">
-          <div class="empty-state">
-            <div class="loading-spinner"></div>
-            <p style="margin-top: var(--space-4);">Loading agencies...</p>
-          </div>
-        </div>
       </div>
     </div>
   </main>
@@ -235,14 +238,14 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Agency *</label>
+            <label class="form-label" for="agency">Agency *</label>
             <select class="form-select" id="editSystemAgency" name="agency" required>
               <option value="">Select agency...</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Status *</label>
+            <label class="form-label" for="status">Status *</label>
             <select class="form-select" id="editSystemStatus" name="status" required>
               <option value="Up">Up</option>
               <option value="Down">Down</option>

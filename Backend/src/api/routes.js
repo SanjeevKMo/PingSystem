@@ -18,6 +18,7 @@ router.get('/auth/me', verifyToken, auth.getCurrentUser);
  * POST/PUT/DELETE are protected (admin only)
  */
 router.get('/systems', systems.getAllSystems);
+router.get('/systems/status', systems.getSystemsByStatus); // New route for filtering by status
 router.get('/systems/:id', systems.getSystemById);
 router.get('/systems/agency/:agency', systems.getSystemsByAgency);
 router.post('/systems', verifyToken, systems.createSystem);

@@ -296,11 +296,49 @@ const getSystemsByAgency = async (req, res) => {
   }
 };
 
+/**
+ * Get systems by status
+ */
+const getSystemsByStatus = async (req, res) => {
+  const { status } = req.query;
+  try {
+    let query = 'SELECT id, name, type, agency, url, status, uptime_percentage, last_check, created_at FROM `systems`';
+    const params = [];
+
+    if (status) {
+      query += ' WHERE LOWER(status) = LOWER(?)'; // Handle case-insensitivity
+      params.push(status);
+    }
+
+    query += ' ORDER BY created_at DESC';
+
+    // Debugging logs
+    console.log('Query:', query);
+    console.log('Parameters:', params);
+
+    const [systems] = await connection.execute(query, params);
+
+    res.json({
+      success: true,
+      data: systems,
+      count: systems.length
+    });
+  } catch (error) {
+    console.error('Error fetching systems by status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch systems by status',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllSystems,
   getSystemById,
   createSystem,
   updateSystem,
   deleteSystem,
-  getSystemsByAgency
+  getSystemsByAgency,
+  getSystemsByStatus
 };
