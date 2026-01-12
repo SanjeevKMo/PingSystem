@@ -112,6 +112,7 @@ function renderAgenciesTable(agencies) {
       <table class="table responsive-table">
         <thead>
           <tr>
+            <th>Logo</th>
             <th>Name</th>
             <th>Contact</th>
             <th>Systems</th>
@@ -121,20 +122,25 @@ function renderAgenciesTable(agencies) {
         <tbody>
   `;
 
-  agencies.forEach(a => {
+  agencies.forEach(agency => {
+    const logo = agency.logo
+      ? `<img src="${escapeHtml(agency.logo)}" alt="${escapeHtml(agency.name)} Logo" style="width: 32px; height: 32px; object-fit: cover;">`
+      : 'N/A';
+
     let contact = 'N/A';
-    if (a.contact_email) contact = escapeHtml(a.contact_email);
-    else if (a.contact_phone) contact = escapeHtml(a.contact_phone);
+    if (agency.contact_email) contact = escapeHtml(agency.contact_email);
+    else if (agency.contact_phone) contact = escapeHtml(agency.contact_phone);
 
     html += `
       <tr>
-        <td data-label="Name"><strong>${escapeHtml(a.name)}</strong></td>
+        <td data-label="Logo">${logo}</td>
+        <td data-label="Name"><strong>${escapeHtml(agency.name)}</strong></td>
         <td data-label="Contact">${contact}</td>
-        <td data-label="Systems">${a.systems_count || 0}</td>
+        <td data-label="Systems">${agency.systems_count || 0}</td>
         <td data-label="Actions">
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <button class="btn btn-secondary btn-sm" onclick="openEditAgencyModal(${a.id})">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteAgency(${a.id})">Delete</button>
+            <button class="btn btn-secondary btn-sm" onclick="openEditAgencyModal(${agency.id})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAgency(${agency.id})">Delete</button>
           </div>
         </td>
       </tr>
@@ -165,9 +171,7 @@ async function openEditAgencyModal(id) {
 
     document.getElementById('editAgencyId').value = agency.id;
     document.getElementById('editAgencyName').value = agency.name || '';
-    document.getElementById('editAgencyEmoji').value = agency.icon_emoji || '';
-    document.getElementById('editAgencyIconUrl').value = agency.icon_url || '';
-    document.getElementById('editAgencyColor').value = agency.color_code || '';
+    document.getElementById('editAgencyLogo').value = agency.logo || ''; // Updated to handle logo
     document.getElementById('editAgencyEmail').value = agency.contact_email || '';
     document.getElementById('editAgencyPhone').value = agency.contact_phone || '';
     document.getElementById('editAgencyDescription').value = agency.description || '';
@@ -194,9 +198,7 @@ async function handleUpdateAgency(e) {
   const payload = {
     name: document.getElementById('editAgencyName').value,
     description: document.getElementById('editAgencyDescription').value || null,
-    icon_emoji: document.getElementById('editAgencyEmoji').value || null,
-    icon_url: document.getElementById('editAgencyIconUrl').value || null,
-    color_code: document.getElementById('editAgencyColor').value || null,
+    logo: document.getElementById('editAgencyLogo').value || null,
     contact_email: document.getElementById('editAgencyEmail').value || null,
     contact_phone: document.getElementById('editAgencyPhone').value || null
   };
@@ -234,11 +236,7 @@ async function handleAddAgency(e) {
   const payload = {
     name: fd.get('name'),
     description: fd.get('description') || null,
-    icon_emoji: fd.get('icon_emoji') || null,
-    icon_url: fd.get('icon_url') || null,
-    color_code: fd.get('color_code') || null,
-    contact_email: fd.get('contact_email') || null,
-    contact_phone: fd.get('contact_phone') || null
+    logo: fd.get('logo') // Include the uploaded logo file
   };
 
   if (!payload.name || payload.name.trim() === '') {
@@ -598,50 +596,44 @@ async function deleteSystem(systemId) {
   }
 }
 
-/**
- * Show alert message
- */
-function showAlert(message, type) {
-  const alertElement = document.getElementById('alert');
-  if (!alertElement) return;
-  
-  alertElement.textContent = message;
-  alertElement.className = `alert alert-${type}`;
-  alertElement.style.display = 'block';
-
-  if (type === 'success') {
-    setTimeout(() => {
-      alertElement.style.display = 'none';
-    }, 3000);
-  }
-}
-
-/**
- * Show/hide loading state
- */
-function showLoading(isLoading) {
-  const tableContainer = document.getElementById('systemsTable');
-  if (isLoading) {
-    tableContainer.innerHTML = `
-      <div class="loading" style="text-align: center; padding: var(--space-8);">
-        <div class="loading-spinner" style="margin: 0 auto var(--space-4);"></div>
-        <p>Loading systems...</p>
-      </div>
-    `;
-  }
-}
-
-/**
- * Escape HTML special characters
- */
-function escapeHtml(text) {
-  if (!text) return '';
-  const map = {
+// Utility function to escape HTML
+function escapeHtml(string) {
+  const entityMap = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
-    "'": '&#039;'
+    "'": '&#39;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;'
   };
-  return text.replaceAll(/[&<>"']/g, m => map[m]);
+  return String(string).replace(/[&<>"]/g, (s) => entityMap[s]);
+}
+
+// Function to show alerts
+function showAlert(message, type) {
+  const alertEl = document.getElementById('alert');
+  if (!alertEl) {
+    console.error('Alert element not found');
+    return;
+  }
+  alertEl.textContent = message;
+  alertEl.className = `alert show ${type}`;
+
+  if (type === 'success') {
+    setTimeout(() => {
+      alertEl.className = 'alert';
+    }, 3000);
+  }
+}
+
+// Function to show/hide loading spinner
+function showLoading(isLoading) {
+  const loadingEl = document.getElementById('loading');
+  if (!loadingEl) {
+    console.error('Loading element not found');
+    return;
+  }
+  loadingEl.style.display = isLoading ? 'block' : 'none';
 }

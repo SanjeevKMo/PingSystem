@@ -19,6 +19,8 @@ const login = async (req, res) => {
       });
     }
 
+    console.log('Request Body:', req.body); // Log the request body
+
     // Get database connection
     const connection = await pool.getConnection();
 

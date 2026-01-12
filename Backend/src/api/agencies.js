@@ -21,6 +21,7 @@ const getAllAgencies = async (req, res) => {
         a.color_code,
         a.contact_email,
         a.contact_phone,
+        a.logo,
         COUNT(s.id) as systems_count,
         SUM(CASE WHEN s.status = 'Up' THEN 1 ELSE 0 END) as systems_up,
         SUM(CASE WHEN s.status = 'Down' THEN 1 ELSE 0 END) as systems_down,
@@ -76,6 +77,7 @@ const getAgencyById = async (req, res) => {
         a.color_code,
         a.contact_email,
         a.contact_phone,
+        a.logo,
         a.created_at,
         a.updated_at
       FROM \`agencies\` a

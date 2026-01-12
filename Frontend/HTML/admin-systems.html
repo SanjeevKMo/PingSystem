@@ -37,7 +37,7 @@
       <div id="alert" class="alert" style="display: none;"></div>
 
       <!-- Add System Form Card -->
-      <div class="card" style="margin-bottom: var(--space-8);">
+      <div class="card toggle-section" style="margin-bottom: var(--space-8);">
         <div class="card-header">
           <div>
             <h3 class="card-title">Add New System</h3>
@@ -88,7 +88,7 @@
 
             <div class="form-group">
               <label class="form-label" for="url">URL or Endpoint</label>
-              <input id="url" class="form-control" type="text" required>
+              <input id="url" class="form-control" type="text" name="url" required>
             </div>
 
             <div style="display: flex; gap: var(--space-4); justify-content: flex-end;">
@@ -108,7 +108,7 @@
         </div>
 
         <!-- Agency Form Card -->
-        <div class="card" style="margin-bottom: var(--space-6);">
+        <div class="card toggle-section" style="margin-bottom: var(--space-6);">
           <div class="card-header">
             <div>
               <h3 class="card-title">Add New Agency</h3>
@@ -125,20 +125,8 @@
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label" for="icon-emoji">Icon Emoji</label>
-                  <input type="text" class="form-input" name="icon_emoji" placeholder="🏢" maxlength="2">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" for="icon-url">Icon URL (Optional)</label>
-                  <input type="text" class="form-input" name="icon_url" placeholder="https://example.com/icon.png">
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label" for="color-code">Color Code</label>
-                  <input type="color" class="form-input" name="color_code" value="#667eea">
+                  <label class="form-label" for="agency-logo">Agency Logo (32x32 px recommended)</label>
+                  <input type="file" class="form-input" name="logo" accept="image/*" required>
                 </div>
               </div>
 
@@ -176,7 +164,7 @@
         </div>
 
         <!-- Systems Table -->
-      <div class="card" style="margin-bottom: var(--space-12);">
+      <div class="card toggle-section" style="margin-bottom: var(--space-12);">
         <div class="card-header">
           <div>
             <h3 class="card-title">All Systems</h3>
@@ -220,12 +208,12 @@
           <input type="hidden" id="editSystemId" name="id">
           
           <div class="form-group">
-            <label class="form-label">System Name *</label>
+            <label class="form-label" for="editSystemName">System Name *</label>
             <input type="text" class="form-input" id="editSystemName" name="name" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label">System Type *</label>
+            <label class="form-label" for="editSystemType">System Type *</label>
             <select class="form-select" id="editSystemType" name="type" required>
               <option value="">Select type...</option>
               <option value="Web Application">Web Application</option>
@@ -238,14 +226,14 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="agency">Agency *</label>
+            <label class="form-label" for="editSystemAgency">Agency *</label>
             <select class="form-select" id="editSystemAgency" name="agency" required>
               <option value="">Select agency...</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="status">Status *</label>
+            <label class="form-label" for="editSystemStatus">Status *</label>
             <select class="form-select" id="editSystemStatus" name="status" required>
               <option value="Up">Up</option>
               <option value="Down">Down</option>
@@ -254,7 +242,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">URL or Endpoint</label>
+            <label class="form-label" for="editSystemUrl">URL or Endpoint</label>
             <input type="text" class="form-input" id="editSystemUrl" name="url">
           </div>
         </form>
@@ -289,21 +277,9 @@
             <textarea class="form-textarea" id="editAgencyDescription" name="description" rows="3"></textarea>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Agency Icon (Emoji)</label>
-              <input type="text" class="form-input" id="editAgencyEmoji" name="icon_emoji" placeholder="🏢" maxlength="2">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Color Code</label>
-              <input type="color" class="form-input" id="editAgencyColor" name="color_code" value="#667eea">
-            </div>
-          </div>
-
           <div class="form-group">
-            <label class="form-label">Icon URL (Optional)</label>
-            <input type="text" class="form-input" id="editAgencyIconUrl" name="icon_url" placeholder="https://example.com/icon.png">
+            <label class="form-label">Agency Logo (32x32 px recommended)</label>
+            <input type="file" class="form-input" id="editAgencyLogo" name="logo" accept="image/*">
           </div>
 
           <div class="form-row">
@@ -328,6 +304,23 @@
   </div>
 
   <!-- FIXED: Now using external JavaScript file instead of inline -->
-  <script src="../JS/admin-systems.js"></script>
+  <script src="../JS/admin-systems.js?v=1.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleSections = document.querySelectorAll('.toggle-section');
+
+      toggleSections.forEach(section => {
+        const header = section.querySelector('.card-header');
+        const body = section.querySelector('.card-body');
+
+        header.addEventListener('click', () => {
+          body.style.display = body.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Initially minimize all sections
+        body.style.display = 'none';
+      });
+    });
+  </script>
 </body>
 </html>

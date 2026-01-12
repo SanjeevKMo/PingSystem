@@ -65,7 +65,10 @@ const getSystemById = async (req, res) => {
  */
 const createSystem = async (req, res) => {
   try {
+    console.log('createSystem route hit'); // Log when the route is hit
     const { name, type, agency, url, status = 'Up' } = req.body;
+
+    console.log('Request Body:', req.body);
 
     // Validate required fields
     if (!name || !type || !agency) {

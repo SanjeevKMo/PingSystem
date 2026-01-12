@@ -23,32 +23,34 @@
     </div>
   </header>
 
-  <!-- Agency Sidebar Navigation -->
-  <aside class="agency-sidebar" id="agency-sidebar">
-    <div class="agency-sidebar-header">Agencies</div>
-    <!-- FIXED: Changed id to match JavaScript -->
-    <ul class="agencies-list" id="agenciesList">
-      <!-- Populated by JavaScript -->
-    </ul>
-  </aside>
+  <!-- Agency Detail Layout -->
+  <div class="layout">
+    <!-- Agency Sidebar Navigation -->
+    <aside class="agency-sidebar" id="agency-sidebar">
+      <div class="agency-sidebar-header">Agencies</div>
+      <!-- FIXED: Changed id to match JavaScript -->
+      <ul class="agencies-list" id="agenciesList">
+        <!-- Populated by JavaScript -->
+      </ul>
+    </aside>
 
-  <!-- Main Content -->
-  <main>
-    <div class="container">
-      <!-- Agency Hero Section -->
-      <div class="agency-hero" id="agency-hero">
-        <!-- FIXED: Changed to camelCase IDs to match JavaScript -->
-        <div class="agency-hero-icon" id="agencyIcon">🏢</div>
-        <div class="agency-hero-info">
-          <h1 id="agencyTitle">Loading...</h1>
-          <p id="agencyDescription">Loading agency details...</p>
-          <!-- ADDED: Hidden element needed by JavaScript -->
-          <div id="agencyName" style="display:none;"></div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Agency Hero Section -->
+        <div class="agency-hero" id="agency-hero">
+          <!-- FIXED: Changed to camelCase IDs to match JavaScript -->
+          <div class="agency-hero-icon" id="agencyIcon">🏢</div>
+          <div class="agency-hero-info">
+            <h1 id="agencyTitle">Loading...</h1>
+            <p id="agencyDescription">Loading agency details...</p>
+            <!-- ADDED: Hidden element needed by JavaScript -->
+            <div id="agencyName" style="display:none;"></div>
+          </div>
         </div>
-      </div>
 
-      
-      <!-- Agency Stats -->
+        
+        <!-- Agency Stats -->
 <div class="dashboard-stats" id="agency-stats-section" style="margin-bottom: var(--space-8);">
   <div class="card stat-card">
     <div class="stat-value" id="totalSystems">0</div>
@@ -71,33 +73,34 @@
   </div>
 </div>
 
-      <!-- Systems Table -->
-      <section style="margin-top: var(--space-12); margin-bottom: var(--space-12);">
-        <div class="table-wrapper">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>System Name</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Uptime</th>
-                <th>Last Check</th>
-              </tr>
-            </thead>
-            <!-- FIXED: Changed to match JavaScript -->
-            <tbody id="systemsBody">
-              <tr>
-                <td colspan="5" class="text-center">
-                  <div class="loading-spinner" style="margin: var(--space-4) auto;"></div>
-                  <p>Loading systems...</p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-  </main>
+        <!-- Systems Table -->
+        <section style="margin-top: var(--space-12); margin-bottom: var(--space-12);">
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>System Name</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Uptime</th>
+                  <th>Last Check</th>
+                </tr>
+              </thead>
+              <!-- FIXED: Changed to match JavaScript -->
+              <tbody id="systemsBody">
+                <tr>
+                  <td colspan="5" class="text-center">
+                    <div class="loading-spinner" style="margin: var(--space-4) auto;"></div>
+                    <p>Loading systems...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
 
   <!-- Mobile Sidebar Toggle Button -->
   <button class="btn btn-icon btn-primary" id="sidebar-toggle-btn" style="display: none; position: fixed; bottom: var(--space-6); right: var(--space-6); z-index: 600;">
